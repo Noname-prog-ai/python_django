@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>{{ title|title }}</h1>
+    <p>{{ description|truncatewords:30 }}</p>
+    <p>Сегодня: {{ now|date:"d M Y" }}</p>
+{% endblock %}
