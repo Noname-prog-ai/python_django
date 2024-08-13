@@ -1,0 +1,13 @@
+<h1>Orders</h1>
+<ul>
+    {% for order in orders %}
+        <li>Order by {{ order.customer_name }} on {{ order.created_at }}. Products:
+            <ul>
+                {% for product in order.products.all %}
+                    <li>{{ product.name }}</li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+</ul>
+<a href="{% url 'shop_index' %}">Back to Shop</a>
