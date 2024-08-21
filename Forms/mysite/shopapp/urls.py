@@ -9,4 +9,6 @@ urlpatterns = [
     path("groups/", groups_list, name="groups_list"),
     path("products/", products_list, name="products_list"),
     path("orders/", orders_list, name="orders_list"),
+    path('create-product/', create_product, name='create_product'),
+    path('create-order/', create_order, name='create_order'),
 ]

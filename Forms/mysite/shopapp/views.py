@@ -6,6 +6,28 @@ from django.shortcuts import render
 
 from .models import Product, Order
 
+def create_product(request):
+    if request.method == "POST":
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('product_list')  # Измените на имя вашего URL
+    else:
+        form = ProductForm()
+
+    return render(request, 'create_product.html', {'form': form})
+
+
+def create_order(request):
+    if request.method == "POST":
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('order_list')  # Измените на имя вашего URL
+    else:
+        form = OrderForm()
+
+    return render(request, 'create_order.html', {'form': form})
 
 def shop_index(request: HttpRequest):
     products = [
