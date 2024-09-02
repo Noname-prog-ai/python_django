@@ -10,10 +10,10 @@ MAX_FILE_SIZE_MB = 1  # Максимальный размер файла в Мб
 
 @require_POST
 def upload_file(request):
-    file = request.FILES.get('file')
+    file = request.FILES.get('icons')
 
     if not file:
-        return JsonResponse({'error': 'No file uploaded.'}, status=400)
+        return JsonResponse({'error': 'No icons uploaded.'}, status=400)
 
     if file.size > MAX_FILE_SIZE_MB * 1024 * 1024:
         return JsonResponse({'error': 'File size exceeds 1 MB limit.'}, status=400)

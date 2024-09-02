@@ -24,6 +24,6 @@ def handle_file_upload(request: HttpRequest) -> HttpResponse:
         myfile = request.FILES["myfile"]
         fs = FileSystemStorage()
         filename = fs.save(myfile.name, myfile)
-        print("saved file", filename)
+        print("saved icons", filename)
 
-    return render(request, "requestdataapp/file-upload.html")
+    return render(request, "requestdataapp/icons-upload.html")
