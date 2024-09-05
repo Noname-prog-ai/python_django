@@ -1,0 +1,11 @@
+{% extends 'shopapp/base.html' %}
+
+{% block content %}
+<h1>{% if form.instance.id %}Edit Order{% else %}Create Order{% endif %}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+</form>
+<a href="{% url 'orders_list' %}">Cancel</a>
+{% endblock %}
