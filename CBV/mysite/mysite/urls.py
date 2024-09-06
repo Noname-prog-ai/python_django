@@ -14,20 +14,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from products.views import ProductListView, ProductDetailView, ProductCreateView, ProductUpdateView, ProductArchiveView
-
-from orders.views import OrderListView, OrderDetailView, OrderCreateView, OrderUpdateView, OrderDeleteView
+from products.views import ProductListView, ProductDetailsView, ProductCreateView, ProductUpdateView, ProductDeleteView
+from orders.views import OrderListView, OrderDetailsView, OrderCreateView, OrderUpdateView, OrderDeleteView
 
 urlpatterns = [
     path('products/', ProductListView.as_view(), name='product_list'),
-    path('products/<int:pk>/', ProductDetailView.as_view(), name='product_detail'),
+    path('products/<int:pk>/', ProductDetailsView.as_view(), name='product_detail'),
     path('products/create/', ProductCreateView.as_view(), name='product_create'),
     path('products/<int:pk>/update/', ProductUpdateView.as_view(), name='product_update'),
-    path('products/<int:pk>/archive/', ProductArchiveView.as_view(), name='product_archive'),
+    path('products/<int:pk>/delete/', ProductDeleteView.as_view(), name='product_delete'),
 
     path('orders/', OrderListView.as_view(), name='order_list'),
-    path('orders/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
+    path('orders/<int:pk>/', OrderDetailsView.as_view(), name='order_detail'),
     path('orders/create/', OrderCreateView.as_view(), name='order_create'),
     path('orders/<int:pk>/update/', OrderUpdateView.as_view(), name='order_update'),
     path('orders/<int:pk>/delete/', OrderDeleteView.as_view(), name='order_delete'),
 ]
+
