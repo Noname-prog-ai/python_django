@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.http import HttpResponse, HttpRequest
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Product, Order
 from .forms import ProductForm, OrderForm
 
@@ -49,90 +49,56 @@ class OrdersListView(ListView):
 # Продукт Details View
 class ProductDetailsView(DetailView):
     model = Product
-    template_name = 'product_detail.html'
+    template_name = 'shopapp/product_detail.html'
     context_object_name = 'product'
 
-# Продукт Create View
-class ProductCreateView(View):
-    def get(self, request: HttpRequest):
-        form = ProductForm()
-        return render(request, 'shopapp/product_form.html', {'form': form})
 
-    def post(self, request: HttpRequest):
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('products_list')
-        return render(request, 'shopapp/product_form.html', {'form': form})
+# Продукт Create View
+class ProductCreateView(CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'shopapp/product_form.html'
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+
 
 # Продукт Update View
-class ProductUpdateView(View):
-    def get(self, request: HttpRequest, pk: int):
-        product = get_object_or_404(Product, pk=pk)
-        form = ProductForm(instance=product)
-        return render(request, 'shopapp/product_form.html', {'form': form})
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'shopapp/product_form.html'
 
-    def post(self, request: HttpRequest, pk: int):
-        product = get_object_or_404(Product, pk=pk)
-        form = ProductForm(request.POST, instance=product)
-        if form.is_valid():
-            form.save()
-            return redirect('products_list')
-        return render(request, 'shopapp/product_form.html', {'form': form})
 
 # Продукт Delete View
-class ProductDeleteView(View):
-    def get(self, request: HttpRequest, pk: int):
-        product = get_object_or_404(Product, pk=pk)
-        return render(request, 'shopapp/product_confirm_delete.html', {'product': product})
-
-    def post(self, request: HttpRequest, pk: int):
-        product = get_object_or_404(Product, pk=pk)
-        product.delete()
-        return redirect('products_list')
-
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'shopapp/product_confirm_delete.html'
+    success_url = '/products/'
 
 # Заказ Details View
-class OrderDetailsView(View):
-    def get(self, request: HttpRequest, pk: int):
-        order = get_object_or_404(Order, pk=pk)
-        return render(request, 'shopapp/order_detail.html', {'order': order})
+class OrderDetailsView(DetailView):
+    model = Order
+    template_name = 'shopapp/order_detail.html'
+    context_object_name = 'order'
+
 
 # Заказ Create View
-class OrderCreateView(View):
-    def get(self, request: HttpRequest):
-        form = OrderForm()
-        return render(request, 'shopapp/order_form.html', {'form': form})
+class OrderCreateView(CreateView):
+    model = Order
+    form_class = OrderForm
+    template_name = 'shopapp/order_form.html'
 
-    def post(self, request: HttpRequest):
-        form = OrderForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('orders_list')
-        return render(request, 'shopapp/order_form.html', {'form': form})
 
 # Заказ Update View
-class OrderUpdateView(View):
-    def get(self, request: HttpRequest, pk: int):
-        order = get_object_or_404(Order, pk=pk)
-        form = OrderForm(instance=order)
-        return render(request, 'shopapp/order_form.html', {'form': form})
+class OrderUpdateView(UpdateView):
+    model = Order
+    form_class = OrderForm
+    template_name = 'shopapp/order_form.html'
 
-    def post(self, request: HttpRequest, pk: int):
-        order = get_object_or_404(Order, pk=pk)
-        form = OrderForm(request.POST, instance=order)
-        if form.is_valid():
-            form.save()
-            return redirect('orders_list')
-        return render(request, 'shopapp/order_form.html', {'form': form})
 
 # Заказ Delete View
-class OrderDeleteView(View):
-    def get(self, request: HttpRequest, pk: int):
-        order = get_object_or_404(Order, pk=pk)
-        return render(request, 'shopapp/order_confirm_delete.html', {'order': order})
-
-    def post(self, request: HttpRequest, pk: int):
-        order = get_object_or_404(Order, pk=pk)
-        order.delete()
-        return redirect('orders_list')
+class OrderDeleteView(DeleteView):
+    model = Order
+    template_name = 'shopapp/order_confirm_delete.html'
+    success_url = '/orders/'
