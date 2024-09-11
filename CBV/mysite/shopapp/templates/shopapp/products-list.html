@@ -22,3 +22,13 @@
     <h3>No products yet</h3>
   {% endif %}
 {% endblock %}
+
+<h1>Product List</h1>
+<ul>
+    {% for product in object_list %}
+        <li>
+            <a href="{% url 'product_detail' product.pk %}">{{ product.name }}</a>
+        </li>
+    {% endfor %}
+</ul>
+<a href="{% url 'product_create' %}">Create new product</a>

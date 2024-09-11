@@ -1,0 +1,15 @@
+{% extends 'shopapp/base.html' %}
+
+{% block content %}
+<h1>Order Details</h1>
+<p>Order ID: {{ order.id }}</p>
+<p>User: {{ order.user.username }}</p>
+<p>Products:
+    {% for product in order.products.all %}
+        {{ product.name }}<br>
+    {% endfor %}
+</p>
+<a href="{% url 'order_update' order.id %}">Edit</a> |
+<a href="{% url 'order_delete' order.id %}">Delete</a> |
+<a href="{% url 'orders_list' %}">Back to Orders</a>
+{% endblock %}

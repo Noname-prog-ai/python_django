@@ -1,41 +1,104 @@
 from timeit import default_timer
-
 from django.contrib.auth.models import Group
 from django.http import HttpResponse, HttpRequest
-from django.shortcuts import render
-
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views import View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Product, Order
+from .forms import ProductForm, OrderForm
 
 
-def shop_index(request: HttpRequest):
-    products = [
-        ('Laptop', 1999),
-        ('Desktop', 2999),
-        ('Smartphone', 999),
-    ]
-    context = {
-        "time_running": default_timer(),
-        "products": products,
-    }
-    return render(request, 'shopapp/shop-index.html', context=context)
+class ShopIndexView(View):
+    def get(self, request: HttpRequest):
+        products = [
+            ('Laptop', 1999),
+            ('Desktop', 2999),
+            ('Smartphone', 999),
+        ]
+        context = {
+            "time_running": default_timer(),
+            "products": products,
+        }
+        return render(request, 'shopapp/shop-index.html', context=context)
 
 
-def groups_list(request: HttpRequest):
-    context = {
-        "groups": Group.objects.prefetch_related('permissions').all(),
-    }
-    return render(request, 'shopapp/groups-list.html', context=context)
+class GroupsListView(ListView):
+    model = Group
+    template_name = 'shopapp/groups-list.html'
+    context_object_name = 'groups'
+
+    def get_queryset(self):
+        return self.model.objects.prefetch_related('permissions').all()
 
 
-def products_list(request: HttpRequest):
-    context = {
-        "products": Product.objects.all(),
-    }
-    return render(request, 'shopapp/products-list.html', context=context)
+class ProductsListView(ListView):
+    model = Product
+    template_name = 'shopapp/products-list.html'
+    context_object_name = 'products'
 
 
-def orders_list(request: HttpRequest):
-    context = {
-        "orders": Order.objects.select_related("user").prefetch_related("products").all(),
-    }
-    return render(request, 'shopapp/orders-list.html', context=context)
+class OrdersListView(ListView):
+    model = Order
+    template_name = 'shopapp/orders-list.html'
+    context_object_name = 'orders'
+
+    def get_queryset(self):
+        return self.model.objects.select_related("user").prefetch_related("products").all()
+
+
+# Продукт Details View
+class ProductDetailsView(DetailView):
+    model = Product
+    template_name = 'shopapp/product_detail.html'
+    context_object_name = 'product'
+
+
+# Продукт Create View
+class ProductCreateView(CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'shopapp/product_form.html'
+
+    def form_valid(self, form):
+        return super().form_valid(form)
+
+
+# Продукт Update View
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'shopapp/product_form.html'
+
+
+# Продукт Delete View
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'shopapp/product_confirm_delete.html'
+    success_url = '/products/'
+
+# Заказ Details View
+class OrderDetailsView(DetailView):
+    model = Order
+    template_name = 'shopapp/order_detail.html'
+    context_object_name = 'order'
+
+
+# Заказ Create View
+class OrderCreateView(CreateView):
+    model = Order
+    form_class = OrderForm
+    template_name = 'shopapp/order_form.html'
+
+
+# Заказ Update View
+class OrderUpdateView(UpdateView):
+    model = Order
+    form_class = OrderForm
+    template_name = 'shopapp/order_form.html'
+
+
+# Заказ Delete View
+class OrderDeleteView(DeleteView):
+    model = Order
+    template_name = 'shopapp/order_confirm_delete.html'
+    success_url = '/orders/'
