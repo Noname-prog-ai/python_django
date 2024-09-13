@@ -3,6 +3,7 @@ from django.shortcuts import render, reverse
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import PermissionRequiredMixin, UserPassesTestMixin
 
 from .models import Product, Order
 
@@ -26,16 +27,25 @@ class ProductsListView(ListView):
     queryset = Product.objects.filter(archived=False)
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(PermissionRequiredMixin, CreateView):
     model = Product
-    fields = "name", "price", "description", "discount"
-    success_url = reverse_lazy("shopapp:products_list")
+    fields = ['name', 'description', 'price']
+    permission_required = 'shopapp.add_product'  # Убедитесь, что заменили на ваше имя приложения
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(PermissionRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Product
-    fields = "name", "price", "description", "discount"
-    template_name_suffix = "_update_form"
+    fields = ['name', 'description', 'price']
+
+    permission_required = 'shopapp.change_product'
+
+    def test_func(self):
+        product = self.get_object()
+        return self.request.user.is_superuser or product.created_by == self.request.user
 
     def get_success_url(self):
         return reverse(

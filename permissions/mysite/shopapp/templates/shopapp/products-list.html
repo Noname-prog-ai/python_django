@@ -1,22 +1,25 @@
 {% extends 'shopapp/base.html' %}
 
 {% block title %}
-  Products list
+  Products List
 {% endblock %}
 
 {% block body %}
   <h1>Products:</h1>
-  {% if products %}
-    <div>
-    {% for product in products %}
-      <div>
-        <p><a href="{% url 'shopapp:product_details' pk=product.pk %}"
-        >Name: {{ product.name }}</a></p>
-        <p>Price: {{ product.price }}</p>
-        <p>Discount: {% firstof product.discount 'no discount' %}</p>
-      </div>
-    {% endfor %}
 
+  {% if products %}
+    <div class="product-list">
+      {% for product in products %}
+        <div class="product-item">
+          <p>
+            <a href="{% url 'shopapp:product_details' pk=product.pk %}">
+              <strong>Name:</strong> {{ product.name }}
+            </a>
+          </p>
+          <p><strong>Price:</strong> {{ product.price }} $</p>
+          <p><strong>Discount:</strong> {% firstof product.discount 'no discount' %}</p>
+        </div>
+      {% endfor %}
     </div>
 
   {% else %}
@@ -24,7 +27,7 @@
   {% endif %}
 
   <div>
-    <a href="{% url 'shopapp:product_create' %}"
-      >Create a new product</a>
+    <a href="{% url 'shopapp:product_create' %}">Create a new product</a>
   </div>
+
 {% endblock %}
