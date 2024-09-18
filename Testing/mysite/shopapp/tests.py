@@ -9,7 +9,6 @@ from django.contrib.auth.models import Permission
 
 User = get_user_model()
 
-
 class OrderDetailViewTest(TestCase):
 
     def setUp(self):
@@ -37,7 +36,7 @@ class OrderDetailViewTest(TestCase):
 
     def test_order_detail_view(self):
         response = self.client.get(
-            reverse('shopapp:order_detail', args=[self.order.pk])
+            reverse('shopapp:order_details', args=[self.order.pk])  # Исправлено имя URL на order_details
         )
 
         # Проверка статуса ответа
@@ -81,7 +80,7 @@ class OrdersExportViewTest(TestCase):
 
     def test_orders_export_view(self):
         response = self.client.get(
-            reverse('shopapp:orders_export')
+            reverse('shopapp:orders_export')  # Убедитесь, что этот URL также существует в urls.py
         )
 
         # Проверка статуса ответа
