@@ -44,7 +44,6 @@ class OrderDetailViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         # Проверка содержимого ответа
         self.assertContains(response, self.order.address)
-        # promo_code не существует, убираем проверку
         # Проверка существующих атрибутов
         self.assertEqual(response.context['order'].pk, self.order.pk)
 
