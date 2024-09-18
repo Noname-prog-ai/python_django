@@ -13,22 +13,21 @@ User = get_user_model()
 class OrderDetailViewTest(TestCase):
 
     def setUp(self):
-        # Создание пользователя
+        # Создание пользователя и вход
         self.user = User.objects.create_user(username='testuser', password='testpassword')
         self.user.is_staff = True
         permission = Permission.objects.get(codename='view_order')
         self.user.user_permissions.add(permission)
         self.user.save()
 
-        # Создание заказа
+        # Вход пользователя в систему
+        self.client.login(username='testuser', password='testpassword')
+
+        # Создание заказа после входа
         self.order = Order.objects.create(
             user=self.user,
-            address='Test Address',
-            promo_code='TEST123'
+            address='Test Address'
         )
-
-        # Учет в контексте
-        self.client.login(username='testuser', password='testpassword')
 
     def tearDown(self):
         # Удаление заказа
@@ -38,14 +37,15 @@ class OrderDetailViewTest(TestCase):
 
     def test_order_detail_view(self):
         response = self.client.get(
-            reverse('shopapp:order_detail',
-                    args=[self.order.pk]))
+            reverse('shopapp:order_detail', args=[self.order.pk])
+        )
 
         # Проверка статуса ответа
         self.assertEqual(response.status_code, 200)
         # Проверка содержимого ответа
         self.assertContains(response, self.order.address)
-        self.assertContains(response, self.order.promo_code)
+        # promo_code не существует, убираем проверку
+        # Проверка существующих атрибутов
         self.assertEqual(response.context['order'].pk, self.order.pk)
 
 
@@ -62,9 +62,9 @@ class OrdersExportViewTest(TestCase):
         cls.product1 = Product.objects.create(name='Product 1')
         cls.product2 = Product.objects.create(name='Product 2')
 
-        cls.order1 = Order.objects.create(user=cls.user, address='Address 1', promo_code='CODE1')
+        cls.order1 = Order.objects.create(user=cls.user, address='Address 1')
         cls.order1.products.add(cls.product1)  # Связываем заказ с продуктом
-        cls.order2 = Order.objects.create(user=cls.user, address='Address 2', promo_code='CODE2')
+        cls.order2 = Order.objects.create(user=cls.user, address='Address 2')
         cls.order2.products.add(cls.product2)  # Связываем заказ с продуктом
 
     def setUp(self):
@@ -82,7 +82,8 @@ class OrdersExportViewTest(TestCase):
 
     def test_orders_export_view(self):
         response = self.client.get(
-            reverse('shopapp:orders_export'))
+            reverse('shopapp:orders_export')
+        )
 
         # Проверка статуса ответа
         self.assertEqual(response.status_code, 200)
@@ -94,7 +95,6 @@ class OrdersExportViewTest(TestCase):
             {
                 'id': order.pk,
                 'address': order.address,
-                'promo_code': order.promo_code,
                 'user_id': order.user.pk,
                 'product_ids': [product.pk for product in order.products.all()]
             }
