@@ -11,39 +11,38 @@ User = get_user_model()
 
 class OrderDetailViewTest(TestCase):
 
-    def setUp(self):
-        # Создание пользователя и вход
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-        self.user.is_staff = True
+    @classmethod
+    def setUpTestData(cls):
+        # Создание пользователя с правами просмотра заказа
+        cls.user = User.objects.create_user(username='testuser', password='testpassword', is_staff=True)
         permission = Permission.objects.get(codename='view_order')
-        self.user.user_permissions.add(permission)
-        self.user.save()
+        cls.user.user_permissions.add(permission)
 
-        # Вход пользователя в систему
+        # Создание продуктов для тестов
+        cls.product = Product.objects.create(name='Test Product')
+
+    def setUp(self):
+        # Вход пользователя
         self.client.login(username='testuser', password='testpassword')
 
         # Создание заказа после входа
         self.order = Order.objects.create(
             user=self.user,
-            address='Test Address'
+            address='Test Address',
         )
 
     def tearDown(self):
         # Удаление заказа
         self.order.delete()
-        # Удаление пользователя
-        self.user.delete()
 
     def test_order_detail_view(self):
-        response = self.client.get(
-            reverse('shopapp:order_details', args=[self.order.pk])  # Исправлено имя URL на order_details
-        )
+        response = self.client.get(reverse('shopapp:order_details', args=[self.order.pk]))  # Исправлено имя маршрута
 
         # Проверка статуса ответа
         self.assertEqual(response.status_code, 200)
         # Проверка содержимого ответа
         self.assertContains(response, self.order.address)
-        # Проверка существующих атрибутов
+        self.assertContains(response, self.order.promo_code)
         self.assertEqual(response.context['order'].pk, self.order.pk)
 
 
@@ -51,41 +50,41 @@ class OrdersExportViewTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        # Создание фикстур пользователей и продуктов
+        # Создание пользователя с правами
         cls.user = User.objects.create_user(username='staffuser', password='staffpassword', is_staff=True)
         permission = Permission.objects.get(codename='view_order')
         cls.user.user_permissions.add(permission)
-        cls.user.save()
 
+        # Создание продуктов
         cls.product1 = Product.objects.create(name='Product 1')
         cls.product2 = Product.objects.create(name='Product 2')
 
-        cls.order1 = Order.objects.create(user=cls.user, address='Address 1')
-        cls.order1.products.add(cls.product1)  # Связываем заказ с продуктом
-        cls.order2 = Order.objects.create(user=cls.user, address='Address 2')
-        cls.order2.products.add(cls.product2)  # Связываем заказ с продуктом
+        # Создание заказов и связывание с продуктами
+        cls.order1 = Order.objects.create(user=cls.user, address='Address 1', promo_code='CODE1')
+        cls.order1.products.add(cls.product1)
+        cls.order2 = Order.objects.create(user=cls.user, address='Address 2', promo_code='CODE2')
+        cls.order2.products.add(cls.product2)
 
     def setUp(self):
         # Вход пользователя с правами
         self.client.login(username='staffuser', password='staffpassword')
 
     def tearDown(self):
-        # Удаление заказов после тестов
+        # Удаление заказов
         self.order1.delete()
         self.order2.delete()
-        # Удаление пользователя
-        self.user.delete()
+        # Удаление пользователя и продуктов
         self.product1.delete()
         self.product2.delete()
+        self.user.delete()
 
     def test_orders_export_view(self):
-        response = self.client.get(
-            reverse('shopapp:orders_export')  # Убедитесь, что этот URL также существует в urls.py
-        )
+        response = self.client.get(reverse('shopapp:orders_export'))
 
         # Проверка статуса ответа
         self.assertEqual(response.status_code, 200)
-        # Получение всех заказов с использованием select_related и prefetch_related
+
+        # Получение всех заказов
         orders = Order.objects.select_related('user').prefetch_related('products').all()
 
         # Проверка структуры ответа
@@ -93,6 +92,7 @@ class OrdersExportViewTest(TestCase):
             {
                 'id': order.pk,
                 'address': order.address,
+                'promo_code': order.promo_code,
                 'user_id': order.user.pk,
                 'product_ids': [product.pk for product in order.products.all()]
             }
