@@ -28,21 +28,23 @@ class OrderDetailViewTest(TestCase):
         # Создание заказа после входа
         self.order = Order.objects.create(
             user=self.user,
-            address='Test Address',
+            delivery_address='Test Address',
+            promocode='TESTCODE',
         )
+        self.order.products.add(self.product)  # Добавляем продукт к заказу
 
     def tearDown(self):
         # Удаление заказа
         self.order.delete()
 
     def test_order_detail_view(self):
-        response = self.client.get(reverse('shopapp:order_details', args=[self.order.pk]))  # Исправлено имя маршрута
+        response = self.client.get(reverse('shopapp:order_details', args=[self.order.pk]))
 
         # Проверка статуса ответа
         self.assertEqual(response.status_code, 200)
         # Проверка содержимого ответа
-        self.assertContains(response, self.order.address)
-        self.assertContains(response, self.order.promo_code)
+        self.assertContains(response, self.order.delivery_address)
+        self.assertContains(response, self.order.promocode)
         self.assertEqual(response.context['order'].pk, self.order.pk)
 
 
@@ -60,9 +62,9 @@ class OrdersExportViewTest(TestCase):
         cls.product2 = Product.objects.create(name='Product 2')
 
         # Создание заказов и связывание с продуктами
-        cls.order1 = Order.objects.create(user=cls.user, address='Address 1', promo_code='CODE1')
+        cls.order1 = Order.objects.create(user=cls.user, delivery_address='Address 1', promocode='CODE1')
         cls.order1.products.add(cls.product1)
-        cls.order2 = Order.objects.create(user=cls.user, address='Address 2', promo_code='CODE2')
+        cls.order2 = Order.objects.create(user=cls.user, delivery_address='Address 2', promocode='CODE2')
         cls.order2.products.add(cls.product2)
 
     def setUp(self):
@@ -91,8 +93,8 @@ class OrdersExportViewTest(TestCase):
         expected_data = [
             {
                 'id': order.pk,
-                'address': order.address,
-                'promo_code': order.promo_code,
+                'delivery_address': order.delivery_address,
+                'promocode': order.promocode,
                 'user_id': order.user.pk,
                 'product_ids': [product.pk for product in order.products.all()]
             }
