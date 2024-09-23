@@ -50,7 +50,7 @@ class OrderDetailViewTest(TestCase):
 
 class OrdersExportViewTest(TestCase):
 
-    fixtures = ['fixtures.yaml']
+    fixtures = ['test_fixtures.json']
 
     @classmethod
     def setUpTestData(cls):
