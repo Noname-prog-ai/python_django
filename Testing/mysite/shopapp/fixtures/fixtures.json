@@ -1,0 +1,32 @@
+- model: yourapp.Product
+  pk: 1
+  fields:
+    name: 'Product 1'
+
+- model: yourapp.Product
+  pk: 2
+  fields:
+    name: 'Product 2'
+
+- model: yourapp.User
+  pk: 1
+  fields:
+    username: 'staffuser'
+    password: 'pbkdf2_sha256$216000$...'
+    is_staff: true
+
+- model: yourapp.Order
+  pk: 1
+  fields:
+    user: 1
+    delivery_address: 'Address 1'
+    promocode: 'CODE1'
+
+- model: yourapp.Order
+  pk: 2
+  fields:
+    user: 1
+    delivery_address: 'Address 2'
+    promocode: 'CODE2'
+
+

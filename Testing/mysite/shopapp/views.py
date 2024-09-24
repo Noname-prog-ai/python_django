@@ -1,6 +1,6 @@
 from timeit import default_timer
 
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, reverse
 from django.urls import reverse_lazy
 from django.views import View
@@ -8,7 +8,6 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from .models import Product, Order
-
 
 class ShopIndexView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
@@ -23,12 +22,10 @@ class ShopIndexView(View):
         }
         return render(request, 'shopapp/shop-index.html', context=context)
 
-
 class ProductDetailsView(DetailView):
     template_name = "shopapp/products-details.html"
     model = Product
     context_object_name = "product"
-
 
 class ProductsListView(ListView):
     template_name = "shopapp/products-list.html"
@@ -36,12 +33,10 @@ class ProductsListView(ListView):
     context_object_name = "products"
     queryset = Product.objects.filter(archived=False)
 
-
 class ProductCreateView(CreateView):
     model = Product
     fields = "name", "price", "description", "discount"
     success_url = reverse_lazy("shopapp:products_list")
-
 
 class ProductUpdateView(UpdateView):
     model = Product
@@ -54,7 +49,6 @@ class ProductUpdateView(UpdateView):
             kwargs={"pk": self.object.pk},
         )
 
-
 class ProductDeleteView(DeleteView):
     model = Product
     success_url = reverse_lazy("shopapp:products_list")
@@ -65,14 +59,12 @@ class ProductDeleteView(DeleteView):
         self.object.save()
         return HttpResponseRedirect(success_url)
 
-
 class OrdersListView(LoginRequiredMixin, ListView):
     queryset = (
         Order.objects
         .select_related("user")
         .prefetch_related("products")
     )
-
 
 class OrderDetailView(PermissionRequiredMixin, DetailView):
     permission_required = "shopapp.view_order"
@@ -81,3 +73,8 @@ class OrderDetailView(PermissionRequiredMixin, DetailView):
         .select_related("user")
         .prefetch_related("products")
     )
+
+class OrdersExportView(View):
+    def get(self, request: HttpRequest, *args, **kwargs) -> JsonResponse:
+        orders = list(Order.objects.values())
+        return JsonResponse(orders, safe=False)
