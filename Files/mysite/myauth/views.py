@@ -6,6 +6,10 @@ from django.contrib.auth import authenticate, login
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView, CreateView
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import ProfileForm
+from django.contrib.auth.models import User
+
 
 from .models import Profile
 
@@ -64,3 +68,34 @@ def get_session_view(request: HttpRequest) -> HttpResponse:
 class FooBarView(View):
     def get(self, request: HttpRequest) -> JsonResponse:
         return JsonResponse({"foo": "bar", "spam": "eggs"})
+
+
+@login_required
+def about_me(request):
+    profile = request.user.profile
+    return render(request, 'myauth/about_me.html', {'profile': profile})
+
+
+@login_required
+def edit_avatar(request):
+    profile = request.user.profile
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('myauth:about-me')
+    else:
+        form = ProfileForm(instance=profile)
+
+    return render(request, 'myauth/edit_avatar.html', {'form': form})
+
+
+def user_list(request):
+    users = User.objects.all()
+    return render(request, 'myauth/user_list.html', {'users': users})
+
+
+def user_detail(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    profile = user.profile
+    return render(request, 'myauth/user_detail.html', {'user': user, 'profile': profile})
