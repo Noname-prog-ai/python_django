@@ -13,7 +13,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     archived = models.BooleanField(default=False)
 
-    def __str__(self):
+    def __str__(self):  # исправлено на __str__
         return f"Product(pk={self.pk}, name={self.name!r})"
 
 

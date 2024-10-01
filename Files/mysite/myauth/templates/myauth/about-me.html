@@ -4,7 +4,6 @@
   About me
 {% endblock %}
 
-
 {% block body %}
   <h1>User info</h1>
   {% if user.is_authenticated %}
@@ -14,6 +13,20 @@
     <p>Last name: {{ user.last_name }}</p>
     <p>Email: {{ user.email }}</p>
     <p>Bio: {{ user.profile.bio }}</p>
+
+    <h3>Avatar</h3>
+    {% if user.profile.avatar %}
+      <img src="{{ user.profile.avatar.url }}" alt="Avatar">
+    {% else %}
+      <p>No avatar uploaded.</p>
+    {% endif %}
+
+    <h3>Change Avatar</h3>
+    <form method="post" enctype="multipart/form-data" action="{% url 'myauth:edit-avatar' %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Upload</button>
+    </form>
   {% else %}
     <h2>User is anonymous</h2>
   {% endif %}
