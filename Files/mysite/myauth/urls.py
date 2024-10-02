@@ -36,6 +36,5 @@ urlpatterns = [
 
     path("foo-bar/", FooBarView.as_view(), name="foo-bar"),
 
-    # Новый маршрут для профиля пользователя
     path("profile/", UserProfileView.as_view(), name="user-profile"),
 ]

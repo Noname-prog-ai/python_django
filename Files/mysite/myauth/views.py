@@ -9,7 +9,7 @@ from django.views.generic import TemplateView, CreateView
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ProfileForm
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, UserProfile
 
 class AboutMeView(TemplateView):
     template_name = "myauth/about-me.html"
@@ -79,3 +79,8 @@ def user_detail(request, user_id):
     user = get_object_or_404(User, id=user_id)
     profile = user.profile
     return render(request, 'myauth/user_detail.html', {'user': user, 'profile': profile})
+
+class UserProfileView(View):
+    def get(self, request, *args, **kwargs):
+        profile = UserProfile.objects.get(user=request.user)
+        return render(request, 'user_profile.html', {'profile': profile})
