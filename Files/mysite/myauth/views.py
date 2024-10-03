@@ -44,7 +44,6 @@ def set_session_view(request: HttpRequest) -> HttpResponse:
     return HttpResponse("Session set!")
 
 @login_required
-
 def get_session_view(request: HttpRequest) -> HttpResponse:
     value = request.session.get("foobar", "default")
     return HttpResponse(f"Session value: {value!r}")
@@ -83,4 +82,22 @@ def user_detail(request, user_id):
 class UserProfileView(View):
     def get(self, request, *args, **kwargs):
         profile = UserProfile.objects.get(user=request.user)
+
         return render(request, 'user_profile.html', {'profile': profile})
+
+@login_required
+def update_avatar(request, user_id=None, new_avatar=None):
+    if user_id is not None:
+        # Логика для администратора
+        user_to_edit = get_object_or_404(User, id=user_id)
+        if request.user.is_superuser:
+            user_to_edit.profile.avatar = new_avatar
+            user_to_edit.profile.save()
+            return HttpResponse("Аватарка пользователя изменена!")
+        else:
+            return HttpResponse("Недостаточно прав.")
+    else:
+        # Логика для обычного пользователя
+        request.user.profile.avatar = new_avatar
+        request.user.profile.save()
+        return HttpResponse("Ваша аватарка изменена!")
