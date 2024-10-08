@@ -1,57 +1,57 @@
 {% extends 'shopapp/base.html' %}
 
 {% block title %}
-  Product #{{ product.pk }}
+  {% translate "Product" %} #{{ product.pk }}
 {% endblock %}
 
 {% block body %}
-  <h1>Product <strong>{{ product.name }}</strong></h1>
+  <h1>{% translate "Product" %} <strong>{{ product.name }}</strong></h1>
   <div>
     <table>
       <tr>
-        <td><strong>Description:</strong></td>
+        <td><strong>{% translate "Description:" %}</strong></td>
         <td><em>{{ product.description }}</em></td>
       </tr>
       <tr>
-        <td><strong>Price:</strong></td>
+        <td><strong>{% translate "Price:" %}</strong></td>
         <td>${{ product.price|floatformat:2 }}</td>
       </tr>
       <tr>
-        <td><strong>Discount:</strong></td>
+        <td><strong>{% translate "Discount:" %}</strong></td>
         <td>{{ product.discount }}%</td>
       </tr>
       <tr>
-        <td><strong>Archived:</strong></td>
-        <td>{{ product.archived|yesno:"Yes,No" }}</td>
+        <td><strong>{% translate "Archived:" %}</strong></td>
+        <td>{{ product.archived|yesno:"{% translate 'Yes' %},{% translate 'No' %}" }}</td>
       </tr>
     </table>
 
     {% if product.preview %}
       <div>
-        <img src="{{ product.preview.url }}" alt="Preview image of {{ product.name }}">
+        <img src="{{ product.preview.url }}" alt="{% translate 'Preview image of' %} {{ product.name }}">
       </div>
     {% endif %}
 
-    <h3>Images:</h3>
+    <h3>{% translate "Images:" %}</h3>
     <div>
       {% for img in product.images.all %}
         <div>
-          <img src="{{ img.image.url }}" alt="{{ img.description|default:"Image" }}">
+          <img src="{{ img.image.url }}" alt="{{ img.description|default: '{% translate "Image" %}' }}">
           <div>{{ img.description }}</div>
         </div>
       {% empty %}
-        <div>No images uploaded yet</div>
+        <div>{% translate "No images uploaded yet" %}</div>
       {% endfor %}
     </div>
   </div>
 
   <div>
-    <a href="{% url 'shopapp:product_update' pk=product.pk %}">Update</a>
+    <a href="{% url 'shopapp:product_update' pk=product.pk %}">{% translate "Update" %}</a>
   </div>
   <div>
-    <a href="{% url 'shopapp:product_delete' pk=product.pk %}">Archive</a>
+    <a href="{% url 'shopapp:product_delete' pk=product.pk %}">{% translate "Archive" %}</a>
   </div>
   <div>
-    <a href="{% url 'shopapp:products_list' %}">Back to products list</a>
+    <a href="{% url 'shopapp:products_list' %}">{% translate "Back to products list" %}</a>
   </div>
 {% endblock %}

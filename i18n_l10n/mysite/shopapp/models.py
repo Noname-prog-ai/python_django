@@ -9,6 +9,8 @@ def product_preview_directory_path(instance: "Product", filename: str) -> str:
 class Product(models.Model):
     class Meta:
         ordering = ["name", "price"]
+        verbose_name = "Товар"
+        verbose_name_plural = "Товары"
 
     name = models.CharField(max_length=100)
     description = models.TextField(null=False, blank=True)
@@ -18,7 +20,7 @@ class Product(models.Model):
     archived = models.BooleanField(default=False)
     preview = models.ImageField(null=True, blank=True, upload_to=product_preview_directory_path)
 
-    def __str__(self) -> str:
+    def str(self) -> str:
         return f"Product(pk={self.pk}, name={self.name!r})"
 
 
@@ -27,12 +29,20 @@ def product_images_directory_path(instance: "ProductImage", filename: str) -> st
 
 
 class ProductImage(models.Model):
+    class Meta:
+        verbose_name = "Изображение товара"
+        verbose_name_plural = "Изображения товаров"
+
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(upload_to=product_images_directory_path)
     description = models.CharField(max_length=200, null=False, blank=True)
 
 
 class Order(models.Model):
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
+
     delivery_address = models.TextField(null=True, blank=True)
     promocode = models.CharField(max_length=20, null=False, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -40,5 +50,5 @@ class Order(models.Model):
     products = models.ManyToManyField(Product, related_name="orders")
     receipt = models.FileField(null=True, upload_to='orders/receipts/')
 
-    def __str__(self) -> str:
+    def str(self) -> str:
         return f"Order(pk={self.pk}, user={self.user}, products={self.products.count()})"
