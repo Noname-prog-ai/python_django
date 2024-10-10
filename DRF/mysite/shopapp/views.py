@@ -7,8 +7,12 @@ from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
+from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
+
 from .forms import ProductForm
 from .models import Product, Order, ProductImage
+from .serializers import ProductSerializer, OrderSerializer
 
 
 class ShopIndexView(View):
@@ -27,29 +31,26 @@ class ShopIndexView(View):
 
 class ProductDetailsView(DetailView):
     template_name = "shopapp/products-details.html"
-    # model = Product
     queryset = Product.objects.prefetch_related("images")
     context_object_name = "product"
 
 
 class ProductsListView(ListView):
     template_name = "shopapp/products-list.html"
-    # model = Product
     context_object_name = "products"
     queryset = Product.objects.filter(archived=False)
 
 
 class ProductCreateView(CreateView):
     model = Product
-    fields = "name", "price", "description", "discount", "preview"
+    fields = ("name", "price", "description", "discount", "preview")
     success_url = reverse_lazy("shopapp:products_list")
 
 
 class ProductUpdateView(UpdateView):
     model = Product
-    # fields = "name", "price", "description", "discount", "preview"
-    template_name_suffix = "_update_form"
     form_class = ProductForm
+    template_name_suffix = "_update_form"
 
     def get_success_url(self):
         return reverse(
@@ -59,11 +60,14 @@ class ProductUpdateView(UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        existing_images = set(self.object.images.values_list('image', flat=True))
+
         for image in form.files.getlist("images"):
-            ProductImage.objects.create(
-                product=self.object,
-                image=image,
-            )
+            if image not in existing_images:
+                ProductImage.objects.create(
+                    product=self.object,
+                    image=image,
+                )
 
         return response
 
@@ -73,10 +77,9 @@ class ProductDeleteView(DeleteView):
     success_url = reverse_lazy("shopapp:products_list")
 
     def form_valid(self, form):
-        success_url = self.get_success_url()
         self.object.archived = True
         self.object.save()
-        return HttpResponseRedirect(success_url)
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class OrdersListView(LoginRequiredMixin, ListView):
@@ -85,6 +88,7 @@ class OrdersListView(LoginRequiredMixin, ListView):
         .select_related("user")
         .prefetch_related("products")
     )
+    template_name = "shopapp/orders-list.html"
 
 
 class OrderDetailView(PermissionRequiredMixin, DetailView):
@@ -94,6 +98,7 @@ class OrderDetailView(PermissionRequiredMixin, DetailView):
         .select_related("user")
         .prefetch_related("products")
     )
+    template_name = "shopapp/order-detail.html"
 
 
 class ProductsDataExportView(View):
@@ -109,3 +114,19 @@ class ProductsDataExportView(View):
             for product in products
         ]
         return JsonResponse({"products": products_data})
+
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ['name', 'description']
+    ordering_fields = ['price', 'created_at']
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
+    filterset_fields = ['status', 'created_at']
+    ordering_fields = ['total_price', 'created_at']
