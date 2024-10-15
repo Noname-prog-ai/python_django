@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
     'shopapp.apps.ShopappConfig',
     'myauth.apps.MyauthConfig',
+    'django.contrib.sitemaps',
 ]
 
 MIDDLEWARE = [

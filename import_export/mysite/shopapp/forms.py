@@ -11,3 +11,6 @@ class ProductForm(forms.ModelForm):
     images = forms.ImageField(
         widget=forms.ClearableFileInput(attrs={"multiple": True}),
     )
+
+class UploadFileForm(forms.Form):
+    file = forms.FileField()

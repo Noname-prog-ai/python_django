@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.viewsets import ModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.syndication.views import Feed
 
 from .forms import ProductForm
 from .models import Product, Order, ProductImage
@@ -135,3 +136,18 @@ class ProductsDataExportView(View):
             for product in products
         ]
         return JsonResponse({"products": products_data})
+
+
+class LatestProductsFeed(Feed):
+    title = "Latest Products"
+    link = "/products/latest/feed/"
+    description = "Updates on the latest products."
+
+    def items(self):
+        return Product.objects.order_by('-date_added')[:5]
+
+    def item_title(self, item):
+        return item.name
+
+    def item_link(self, item):
+        return item.get_absolute_url()
