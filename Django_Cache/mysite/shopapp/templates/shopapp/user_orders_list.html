@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказы пользователя</title>
+</head>
+<body>
+    <h1>Заказы пользователя {{ owner.username }}</h1>
+
+    {% if orders %}
+        <h2>Пользователь {{ owner.get_full_name }} выполнил следующие заказы:</h2>
+        {% cache 600 user_orders_list owner.id %}
+        <ul>
+            {% for order in orders %}
+                <li>Заказ #{{ order.id }}: {{ order.details }}</li>
+            {% endfor %}
+        </ul>
+        {% endcache %}
+    {% else %}
+        <h2>У пользователя {{ owner.get_full_name }} ещё нет заказов.</h2>
+    {% endif %}
+</body>
+</html>
