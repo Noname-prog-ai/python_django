@@ -26,16 +26,17 @@ DATABASE_DIR.mkdir(exist_ok=True)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = getenv(
-    "DJANGO_SECRET_KEY"
+    "DJANGO_SECRET_KEY",
     'django-insecure-hvxn%qq=gyw^4*o2lo1#bw0=wh#ux9s8h!=@c608arf_gz3+^7'
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = getenv("DJANGO_DEBUG", "1")
+DEBUG = getenv("DJANGO_DEBUG", "0") == "1"
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "0.0.0.0",
+    "localhost",
 ] + getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
 
 INTERNAL_IPS = [
@@ -184,7 +185,7 @@ logging.config.dictConfig({
     "disable_existing_loggers": False,
     "formatters": {
         "console": {
-            "format": "%(asctime)s %(levelname)s [%(name)s:%(lineno)s %(massage)s",
+            "format": "%(asctime)s %(levelname)s [%(name)s:%(lineno)s] %(module)s %(message)s",
         },
     },
     "handlers": {

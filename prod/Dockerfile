@@ -4,10 +4,11 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+RUN pip install --upgrade pip "poetry==1.5.1"
+RUN poetry config virtualenvs.create false --local
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+COPY poetry.lock  pyproject.toml ./
+RUN poetry install
 
 COPY mysite .
 
