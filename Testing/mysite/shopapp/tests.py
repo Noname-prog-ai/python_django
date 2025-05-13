@@ -1,4 +1,7 @@
+from django.urls import reverse
 from django.test import TestCase
+from django.contrib.auth.models import User
+from .models import Order, Product  # Импортируйте ваши модели
 
 # Create your tests here.
 from django.test import TestCase
