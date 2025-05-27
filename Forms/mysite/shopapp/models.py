@@ -35,4 +35,4 @@ class Order(models.Model):
     quantity = models.PositiveIntegerField()
 
     def __str__(self):
-        return f"Заказ на {self.quantity} шт. {self.product.name}"
+        return f"Заказ на {self.quantity} шт. {self.product.name}" 
